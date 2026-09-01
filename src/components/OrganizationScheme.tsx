@@ -65,6 +65,7 @@ function SchemeNode({
   radius: number
 }) {
   const pos = getPosition(index, SCHEME_STEPS.length, radius)
+  const isLarge = step.full.length > 100
 
   return (
     <button
@@ -82,24 +83,26 @@ function SchemeNode({
       }}
     >
       <div
-        className={`relative bg-gradient-to-br ${step.color} shadow-xl transition-all duration-500 ease-out overflow-hidden ${
+        className={`relative bg-gradient-to-br ${step.color} shadow-xl transition-all duration-500 ease-out flex flex-col items-center justify-center text-center rounded-full aspect-square shrink-0 ${
           isActive
-            ? `w-52 sm:w-56 rounded-3xl p-4 ring-4 ${step.ring} scale-100`
-            : 'w-14 h-14 rounded-full flex items-center justify-center opacity-75 hover:opacity-100 hover:scale-110'
+            ? `${isLarge ? 'w-56 h-56' : 'w-48 h-48 sm:w-52 sm:h-52'} p-3 ring-4 ${step.ring} z-20`
+            : 'w-14 h-14 opacity-75 hover:opacity-100 hover:scale-110'
         }`}
       >
-        <span className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-night border-2 border-gold text-gold text-[10px] font-bold flex items-center justify-center z-10">
+        <span className={`absolute w-6 h-6 rounded-full bg-night border-2 border-gold text-gold text-[10px] font-bold flex items-center justify-center z-10 transition-all duration-500 ${
+          isActive ? '-top-1 -right-1' : '-top-1.5 -right-1.5'
+        }`}>
           {step.num}
         </span>
 
         {isActive ? (
-          <div className="text-white animate-fade-up">
-            <div className="flex justify-center mb-2">{ICONS[step.icon]}</div>
-            <h4 className="font-semibold text-xs leading-snug mb-2 text-center">{step.title}</h4>
-            <p className="text-[10px] leading-relaxed text-white/90 text-center">{step.full}</p>
+          <div className="text-white animate-fade-up flex flex-col items-center justify-center h-full px-1">
+            <div className="mb-1.5 shrink-0">{ICONS[step.icon]}</div>
+            <h4 className="font-semibold text-[10px] sm:text-xs leading-tight mb-1.5">{step.title}</h4>
+            <p className="text-[8px] sm:text-[9px] leading-snug text-white/90 overflow-y-auto max-h-[55%] scrollbar-none">{step.full}</p>
           </div>
         ) : (
-          <div className="text-white flex items-center justify-center w-full h-full">
+          <div className="text-white flex items-center justify-center">
             {ICONS[step.icon]}
           </div>
         )}
@@ -136,14 +139,14 @@ export default function OrganizationScheme() {
     return () => clearInterval(timer)
   }, [visible, paused])
 
-  const radius = 40
+  const radius = 36
   const highlighted = active
 
   return (
     <div ref={ref} className="relative">
       {/* Desktop diagram */}
       <div
-        className="hidden lg:block relative w-full max-w-5xl mx-auto aspect-square"
+        className="hidden lg:block relative w-full max-w-5xl mx-auto aspect-square min-h-[520px]"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => { setPaused(false); setActive(null) }}
       >
