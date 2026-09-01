@@ -5,6 +5,7 @@ import Hero from './components/Hero'
 import Categories from './components/Categories'
 import ProductGrid from './components/ProductGrid'
 import Discounts from './components/Discounts'
+import Organization from './components/Organization'
 import ConsultationForm from './components/ConsultationForm'
 import Partners from './components/Partners'
 import Team from './components/Team'
@@ -36,6 +37,7 @@ export default function App() {
           />
           <ProductGrid activeCategory={activeCategory} />
           <Discounts />
+          <Organization />
           <ConsultationForm />
           <Partners />
           <Team />

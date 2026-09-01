@@ -62,3 +62,22 @@ body {
   background-clip: text;
   animation: shimmer 4s linear infinite;
 }
+
+@keyframes scheme-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.15); }
+  50% { box-shadow: 0 0 40px rgba(251, 191, 36, 0.35); }
+}
+
+@keyframes scheme-orbit {
+  from { transform: rotate(0deg); transform-origin: center; }
+  to { transform: rotate(360deg); transform-origin: center; }
+}
+
+.scheme-pulse {
+  animation: scheme-pulse 3s ease-in-out infinite;
+}
+
+.scheme-orbit {
+  animation: scheme-orbit 60s linear infinite;
+  transform-origin: 50px 50px;
+}

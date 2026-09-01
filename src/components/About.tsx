@@ -29,22 +29,13 @@ export default function About() {
             по доступным ценам в Рязани, Москве и близлежащих регионах.
           </p>
 
-          <div className="grid sm:grid-cols-2 gap-3 mb-10">
+          <div className="grid sm:grid-cols-2 gap-3">
             {FEATURES.map((feature) => (
               <div key={feature} className="flex items-start gap-3 text-sm">
                 <span className="text-gold mt-0.5">✦</span>
                 <span className="text-slate-300">{feature}</span>
               </div>
             ))}
-          </div>
-
-          <div id="services" className="border-t border-white/10 pt-8">
-            <h3 className="font-semibold text-white mb-4 text-center">
-              Только безопасная сделка
-            </h3>
-            <p className="text-sm text-slate-400 text-center mb-6">
-              Безопасность и моральное удовлетворение заказчика — наш приоритет
-            </p>
           </div>
         </div>
       </div>
