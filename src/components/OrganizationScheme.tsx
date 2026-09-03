@@ -42,37 +42,40 @@ const ICONS: Record<string, ReactNode> = {
 
 const CX = 200
 const CY = 200
-const RING_RADII = [48, 68, 88, 108, 128, 148]
-const ARC_SWEEP = 48 // degrees of coloured arc
-const LABEL_R = 195
+/** One clear track for all steps — evenly spaced clockwise from top */
+const TRACK_R = 130
+const GAP_DEG = 8
+const STEP_SWEEP = 360 / SCHEME_STEPS.length - GAP_DEG
 
 function degToRad(d: number) {
   return (d * Math.PI) / 180
 }
 
-function polar(cx: number, cy: number, r: number, deg: number) {
+function polar(r: number, deg: number) {
   const a = degToRad(deg)
-  return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) }
+  return { x: CX + r * Math.cos(a), y: CY + r * Math.sin(a) }
 }
 
-function arcPath(cx: number, cy: number, r: number, startDeg: number, endDeg: number) {
-  const start = polar(cx, cy, r, startDeg)
-  const end = polar(cx, cy, r, endDeg)
+function arcPath(r: number, startDeg: number, endDeg: number) {
+  const start = polar(r, startDeg)
+  const end = polar(r, endDeg)
   const large = Math.abs(endDeg - startDeg) > 180 ? 1 : 0
-  const sweep = endDeg > startDeg ? 1 : 0
-  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${large} ${sweep} ${end.x} ${end.y}`
+  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${large} 1 ${end.x} ${end.y}`
 }
 
-function calloutSide(angle: number): 'left' | 'right' {
-  const a = ((angle % 360) + 360) % 360
-  return a > 90 && a < 270 ? 'left' : 'right'
+/** Step i starts at this angle (degrees, 0 = right). Start from top (-90). */
+function stepAngles(i: number) {
+  const sector = 360 / SCHEME_STEPS.length
+  const mid = -90 + i * sector
+  const start = mid - STEP_SWEEP / 2
+  const end = mid + STEP_SWEEP / 2
+  return { start, mid, end }
 }
 
 export default function OrganizationScheme() {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
   const [active, setActive] = useState(0)
-  const [paused, setPaused] = useState(false)
 
   useEffect(() => {
     const el = ref.current
@@ -85,208 +88,180 @@ export default function OrganizationScheme() {
     return () => obs.disconnect()
   }, [])
 
-  useEffect(() => {
-    if (!visible || paused) return
-    const timer = setInterval(() => {
-      setActive((a) => (a + 1) % SCHEME_STEPS.length)
-    }, 4000)
-    return () => clearInterval(timer)
-  }, [visible, paused])
+  const step = SCHEME_STEPS[active]
 
   return (
     <div ref={ref} className="relative">
-      {/* Desktop concentric chart */}
+      {/* Desktop */}
       <div
-        className="hidden lg:block relative mx-auto max-w-5xl"
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
+        className={`hidden lg:block mx-auto max-w-3xl transition-opacity duration-500 ${
+          visible ? 'opacity-100' : 'opacity-0'
+        }`}
       >
         <div
-          className={`relative rounded-[2rem] overflow-hidden transition-opacity duration-700 ${
-            visible ? 'opacity-100' : 'opacity-0'
-          }`}
+          className="relative rounded-[2rem] px-8 py-10"
           style={{
             background:
-              'radial-gradient(ellipse at 40% 50%, #1a1a24 0%, #0c0c14 55%, #08080f 100%)',
+              'radial-gradient(ellipse at 50% 45%, #1a1a24 0%, #0c0c14 60%, #08080f 100%)',
           }}
         >
-          {/* subtle grain */}
           <div
-            className="pointer-events-none absolute inset-0 opacity-[0.04]"
+            className="pointer-events-none absolute inset-0 rounded-[2rem] opacity-[0.04]"
             style={{
               backgroundImage:
                 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
             }}
           />
 
-          <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-6 py-10">
-            {/* Left callouts */}
-            <div className="flex flex-col gap-6 justify-center py-4">
-              {SCHEME_STEPS.filter((s) => calloutSide(s.angle) === 'left')
-                .sort((a, b) => a.angle - b.angle)
-                .map((step) => {
-                  const i = SCHEME_STEPS.findIndex((s) => s.num === step.num)
-                  const isActive = active === i
-                  return (
-                    <Callout
-                      key={step.num}
-                      step={step}
-                      side="left"
-                      isActive={isActive}
-                      onHover={() => setActive(i)}
+          <div className="relative mx-auto w-[420px] h-[420px]">
+            <svg viewBox="0 0 400 400" className="w-full h-full">
+              {/* Separated guide rings — clear gaps */}
+              <circle cx={CX} cy={CY} r={TRACK_R + 28} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
+              <circle cx={CX} cy={CY} r={TRACK_R} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={22} />
+              <circle cx={CX} cy={CY} r={TRACK_R - 28} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
+
+              {SCHEME_STEPS.map((s, i) => {
+                const { start, mid, end } = stepAngles(i)
+                const isActive = active === i
+                const midPt = polar(TRACK_R, mid)
+
+                return (
+                  <g
+                    key={s.num}
+                    className="cursor-pointer"
+                    onMouseEnter={() => setActive(i)}
+                    onClick={() => setActive(i)}
+                  >
+                    {/* Invisible fat hit area */}
+                    <path
+                      d={arcPath(TRACK_R, start, end)}
+                      fill="none"
+                      stroke="transparent"
+                      strokeWidth={36}
+                      strokeLinecap="round"
                     />
-                  )
-                })}
-            </div>
-
-            {/* Chart */}
-            <div className="relative w-[400px] h-[400px] shrink-0">
-              <svg viewBox="0 0 400 400" className="w-full h-full overflow-visible">
-                {/* Concentric guide rings */}
-                {RING_RADII.map((r) => (
-                  <circle
-                    key={r}
-                    cx={CX}
-                    cy={CY}
-                    r={r}
-                    fill="none"
-                    stroke="rgba(255,255,255,0.06)"
-                    strokeWidth={1}
-                  />
-                ))}
-
-                {/* Coloured arcs + leader lines */}
-                {SCHEME_STEPS.map((step, i) => {
-                  const r = RING_RADII[step.ring - 1] ?? RING_RADII[RING_RADII.length - 1]
-                  const start = step.angle - ARC_SWEEP / 2
-                  const end = step.angle + ARC_SWEEP / 2
-                  const mid = polar(CX, CY, r, step.angle)
-                  const elbow = polar(CX, CY, LABEL_R - 10, step.angle)
-                  const side = calloutSide(step.angle)
-                  const labelEndX = side === 'right' ? 385 : 15
-                  const isActive = active === i
-
-                  return (
-                    <g
-                      key={step.num}
-                      className="cursor-pointer transition-opacity duration-300"
-                      style={{ opacity: isActive ? 1 : 0.45 }}
-                      onMouseEnter={() => setActive(i)}
-                      onClick={() => setActive(i)}
+                    <path
+                      d={arcPath(TRACK_R, start, end)}
+                      fill="none"
+                      stroke={s.color}
+                      strokeWidth={isActive ? 22 : 14}
+                      strokeLinecap="round"
+                      opacity={isActive ? 1 : 0.55}
+                      style={{
+                        filter: isActive ? `drop-shadow(0 0 10px ${s.color}66)` : undefined,
+                        transition: 'stroke-width 0.2s, opacity 0.2s',
+                      }}
+                    />
+                    <circle
+                      cx={midPt.x}
+                      cy={midPt.y}
+                      r={isActive ? 14 : 12}
+                      fill="#0c0c14"
+                      stroke={s.color}
+                      strokeWidth={2}
+                    />
+                    <text
+                      x={midPt.x}
+                      y={midPt.y}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fill={s.color}
+                      fontSize={12}
+                      fontWeight={700}
+                      className="pointer-events-none select-none"
                     >
-                      {/* Arc track highlight */}
-                      <path
-                        d={arcPath(CX, CY, r, start, end)}
-                        fill="none"
-                        stroke={step.color}
-                        strokeWidth={isActive ? 14 : 11}
-                        strokeLinecap="round"
-                        className="transition-all duration-500"
-                        style={{
-                          filter: isActive ? `drop-shadow(0 0 8px ${step.color}88)` : undefined,
-                        }}
-                      />
-                      {/* Step number on arc */}
-                      <text
-                        x={mid.x}
-                        y={mid.y}
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                        fill="#0c0c14"
-                        fontSize={isActive ? 13 : 11}
-                        fontWeight={700}
-                        className="pointer-events-none select-none transition-all duration-300"
-                      >
-                        {step.num}
-                      </text>
-                      {/* Anchor dot */}
-                      <circle cx={mid.x} cy={mid.y} r={isActive ? 4 : 0} fill={step.color} className="transition-all duration-300" />
-                      {/* Leader line: arc → elbow → side */}
-                      <path
-                        d={`M ${mid.x} ${mid.y} L ${elbow.x} ${elbow.y} L ${labelEndX} ${elbow.y}`}
-                        fill="none"
-                        stroke={step.color}
-                        strokeWidth={isActive ? 1.5 : 0.8}
-                        strokeOpacity={isActive ? 0.9 : 0.25}
-                        className="transition-all duration-500"
-                      />
-                      <circle
-                        cx={labelEndX}
-                        cy={elbow.y}
-                        r={3}
-                        fill={step.color}
-                        opacity={isActive ? 1 : 0.3}
-                        className="transition-opacity duration-500"
-                      />
-                    </g>
-                  )
-                })}
+                      {s.num}
+                    </text>
+                  </g>
+                )
+              })}
 
-                {/* Centre hub */}
-                <circle cx={CX} cy={CY} r={36} fill="#12121c" stroke="rgba(251,191,36,0.35)" strokeWidth={1.5} />
-              </svg>
+              <circle cx={CX} cy={CY} r={42} fill="#12121c" stroke="rgba(251,191,36,0.35)" strokeWidth={1.5} />
+            </svg>
 
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="flex flex-col items-center text-center w-16">
-                  <IconFirework size={22} className="text-gold mb-0.5" />
-                  <span className="font-display font-bold text-gold text-[11px] leading-tight">Салюты</span>
-                </div>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="flex flex-col items-center text-center">
+                <IconFirework size={24} className="text-gold mb-1" />
+                <span className="font-display font-bold text-gold text-sm">Салюты</span>
               </div>
             </div>
+          </div>
 
-            {/* Right callouts */}
-            <div className="flex flex-col gap-6 justify-center py-4">
-              {SCHEME_STEPS.filter((s) => calloutSide(s.angle) === 'right')
-                .sort((a, b) => a.angle - b.angle)
-                .map((step) => {
-                  const i = SCHEME_STEPS.findIndex((s) => s.num === step.num)
-                  const isActive = active === i
-                  return (
-                    <Callout
-                      key={step.num}
-                      step={step}
-                      side="right"
-                      isActive={isActive}
-                      onHover={() => setActive(i)}
-                    />
-                  )
-                })}
+          {/* Single detail card — no crossing leader lines */}
+          <div
+            key={active}
+            className="relative mt-2 mx-auto max-w-lg rounded-2xl border px-6 py-5 text-center animate-fade-up"
+            style={{
+              borderColor: `${step.color}55`,
+              background: `${step.color}12`,
+            }}
+          >
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <span
+                className="w-9 h-9 rounded-full flex items-center justify-center"
+                style={{ background: `${step.color}28`, color: step.color }}
+              >
+                {ICONS[step.icon]}
+              </span>
+              <div className="text-left">
+                <span className="text-[10px] font-bold tracking-wide" style={{ color: step.color }}>
+                  Шаг {step.num} из 7
+                </span>
+                <h4 className="font-semibold text-white text-sm leading-snug">{step.title}</h4>
+              </div>
+            </div>
+            <p className="text-sm text-slate-400 leading-relaxed">{step.full}</p>
+
+            <div className="flex justify-center gap-2 mt-4">
+              {SCHEME_STEPS.map((s, i) => (
+                <button
+                  key={s.num}
+                  type="button"
+                  onClick={() => setActive(i)}
+                  className="w-8 h-8 rounded-full text-xs font-bold transition-transform"
+                  style={{
+                    background: active === i ? s.color : 'rgba(255,255,255,0.08)',
+                    color: active === i ? '#0c0c14' : '#94a3b8',
+                    transform: active === i ? 'scale(1.1)' : undefined,
+                  }}
+                >
+                  {s.num}
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
         <p className="text-center text-xs text-slate-500 mt-4">
-          Наведите на дугу или описание, чтобы выделить шаг
+          Наведите на сегмент или выберите номер шага
         </p>
       </div>
 
-      {/* Mobile timeline */}
+      {/* Mobile */}
       <div className="lg:hidden space-y-3">
-        {SCHEME_STEPS.map((step, i) => (
+        {SCHEME_STEPS.map((s, i) => (
           <button
-            key={step.num}
+            key={s.num}
             type="button"
             onClick={() => setActive(active === i ? -1 : i)}
-            className="w-full text-left rounded-2xl transition-all duration-300 overflow-hidden border"
+            className="w-full text-left rounded-2xl transition-colors duration-200 overflow-hidden border"
             style={{
-              borderColor: active === i ? step.color : 'rgba(255,255,255,0.06)',
-              background: active === i ? `${step.color}14` : 'rgba(255,255,255,0.03)',
+              borderColor: active === i ? s.color : 'rgba(255,255,255,0.06)',
+              background: active === i ? `${s.color}14` : 'rgba(255,255,255,0.03)',
             }}
           >
             <div className="flex items-center gap-3 p-4">
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center text-night font-bold text-sm shrink-0"
-                style={{ background: step.color }}
+                className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
+                style={{ background: s.color, color: '#0c0c14' }}
               >
-                {step.num}
+                {s.num}
               </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-sm leading-snug" style={{ color: step.color }}>
-                  {step.title}
-                </h4>
-              </div>
+              <h4 className="font-semibold text-sm leading-snug flex-1" style={{ color: s.color }}>
+                {s.title}
+              </h4>
               <svg
-                className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${active === i ? 'rotate-180' : ''}`}
+                className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${active === i ? 'rotate-180' : ''}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -295,60 +270,12 @@ export default function OrganizationScheme() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
               </svg>
             </div>
-            <div className={`px-4 overflow-hidden transition-all duration-500 ${active === i ? 'max-h-40 pb-4' : 'max-h-0'}`}>
-              <p className="text-xs text-slate-400 leading-relaxed">{step.full}</p>
-            </div>
+            {active === i && (
+              <p className="px-4 pb-4 text-xs text-slate-400 leading-relaxed">{s.full}</p>
+            )}
           </button>
         ))}
       </div>
     </div>
-  )
-}
-
-function Callout({
-  step,
-  side,
-  isActive,
-  onHover,
-}: {
-  step: (typeof SCHEME_STEPS)[number]
-  side: 'left' | 'right'
-  isActive: boolean
-  onHover: () => void
-}) {
-  return (
-    <button
-      type="button"
-      onMouseEnter={onHover}
-      onFocus={onHover}
-      className={`text-left transition-all duration-500 max-w-[220px] ${
-        side === 'left' ? 'ml-auto' : 'mr-auto'
-      } ${isActive ? 'opacity-100 translate-x-0' : 'opacity-40'}`}
-    >
-      <div className={`flex items-center gap-2 mb-1.5 ${side === 'left' ? 'flex-row-reverse' : ''}`}>
-        <span
-          className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
-          style={{ background: `${step.color}22`, color: step.color }}
-        >
-          {ICONS[step.icon]}
-        </span>
-        <span className="text-[10px] font-bold tracking-wide" style={{ color: step.color }}>
-          Шаг {step.num}
-        </span>
-      </div>
-      <h4
-        className={`font-semibold text-sm leading-snug mb-1 ${side === 'left' ? 'text-right' : 'text-left'}`}
-        style={{ color: isActive ? step.color : '#e2e8f0' }}
-      >
-        {step.title}
-      </h4>
-      <p
-        className={`text-[11px] leading-relaxed text-slate-400 transition-all duration-500 ${
-          side === 'left' ? 'text-right' : 'text-left'
-        } ${isActive ? 'max-h-28 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}
-      >
-        {step.full}
-      </p>
-    </button>
   )
 }

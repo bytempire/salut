@@ -18,7 +18,6 @@ export const FACTS = [
   { image: 'catalog/view/theme/salut/image/organiz/img-data6.png', text: 'Нас рекомендуют друзьям, коллегам, близким' },
 ]
 
-/** Concentric-ring chart layout: each step sits on its own ring with a coloured arc. */
 export const SCHEME_STEPS = [
   {
     num: 1,
@@ -26,9 +25,6 @@ export const SCHEME_STEPS = [
     full: 'Оставляйте заявку на нашем сайте или звоните по телефону',
     color: '#e8c547',
     icon: 'phone',
-    /** Arc centre angle in degrees (0 = right, -90 = top) */
-    angle: -40,
-    ring: 6,
   },
   {
     num: 2,
@@ -36,8 +32,6 @@ export const SCHEME_STEPS = [
     full: 'Мы уточняем дату и место проведения',
     color: '#f0a06a',
     icon: 'calendar',
-    angle: 15,
-    ring: 5,
   },
   {
     num: 3,
@@ -45,8 +39,6 @@ export const SCHEME_STEPS = [
     full: 'Перед началом организации салюта или файер-шоу детально изучаем все пожелания заказчика, место проведения и другие технические нюансы, чтобы всё предусмотреть и учесть.',
     color: '#6eb5e0',
     icon: 'chat',
-    angle: 70,
-    ring: 4,
   },
   {
     num: 4,
@@ -54,8 +46,6 @@ export const SCHEME_STEPS = [
     full: 'После обговаривания условий, окончательно согласовываем дату, место проведения, время и другие условия.',
     color: '#7dba8a',
     icon: 'handshake',
-    angle: 130,
-    ring: 3,
   },
   {
     num: 5,
@@ -63,8 +53,6 @@ export const SCHEME_STEPS = [
     full: 'При организации салютов и фейерверк-шоу мы ставим на первое место безопасность людей, поэтому соблюдаем все необходимые меры предосторожности, обязательно проводим перед началом инструктаж.',
     color: '#e07a7a',
     icon: 'shield',
-    angle: 185,
-    ring: 5,
   },
   {
     num: 6,
@@ -72,8 +60,6 @@ export const SCHEME_STEPS = [
     full: 'Указываем в нём не только реквизиты, но и все обговорённые нюансы. Тем самым, вы как заказчик, юридически защищены.',
     color: '#8fd4c1',
     icon: 'document',
-    angle: 235,
-    ring: 4,
   },
   {
     num: 7,
@@ -81,8 +67,6 @@ export const SCHEME_STEPS = [
     full: 'Не сомневайтесь в том, что вы их получите! Буйство красок, мощь, непередаваемая красота и радостное ощущение праздника и веры в чудеса непременно не оставят вас и ваших близких и друзей равнодушными и заставят как минимум улыбнуться!',
     color: '#e8c547',
     icon: 'sparkle',
-    angle: 295,
-    ring: 6,
   },
 ]
 
