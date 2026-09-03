@@ -109,7 +109,7 @@ export default function OrganizationScheme() {
           className="relative rounded-[2rem] overflow-hidden py-6"
           style={{
             background:
-              'radial-gradient(ellipse at 50% 50%, #1a1a24 0%, #0c0c14 55%, #08080f 100%)',
+              'radial-gradient(ellipse at 50% 50%, rgba(26,26,36,0.55) 0%, rgba(12,12,20,0.35) 55%, rgba(8,8,15,0.2) 100%)',
           }}
         >
           <div
@@ -172,7 +172,7 @@ export default function OrganizationScheme() {
                       cx={arcPt.x}
                       cy={arcPt.y}
                       r={isActive ? 14 : 12}
-                      fill="#0c0c14"
+                      fill="rgba(12,12,20,0.75)"
                       stroke={s.color}
                       strokeWidth={2}
                     />
@@ -197,7 +197,7 @@ export default function OrganizationScheme() {
                 cx={CX}
                 cy={CY}
                 r={HUB_R}
-                fill="#12121c"
+                fill="rgba(18,18,28,0.55)"
                 stroke={step.color}
                 strokeWidth={1.5}
                 strokeOpacity={0.45}
