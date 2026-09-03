@@ -39,12 +39,12 @@ const ICONS: Record<string, ReactNode> = {
   ),
 }
 
-const VB = 700
+const VB = 760
 const CX = VB / 2
 const CY = VB / 2
-const TRACK_R = 168
-const LINE_END_R = 218
-const HUB_R = 118
+const TRACK_R = 200
+const LINE_END_R = 255
+const HUB_R = 155
 const GAP_DEG = 10
 const STEP_SWEEP = 360 / SCHEME_STEPS.length - GAP_DEG
 
@@ -101,12 +101,12 @@ export default function OrganizationScheme() {
   return (
     <div ref={ref} className="relative">
       <div
-        className={`hidden lg:block mx-auto max-w-5xl transition-opacity duration-500 ${
+        className={`hidden lg:block mx-auto max-w-6xl transition-opacity duration-500 ${
           visible ? 'opacity-100' : 'opacity-0'
         }`}
       >
         <div
-          className="relative rounded-[2rem] overflow-hidden py-4"
+          className="relative rounded-[2rem] overflow-hidden py-6"
           style={{
             background:
               'radial-gradient(ellipse at 50% 50%, #1a1a24 0%, #0c0c14 55%, #08080f 100%)',
@@ -120,7 +120,7 @@ export default function OrganizationScheme() {
             }}
           />
 
-          <div className="relative mx-auto w-full max-w-[820px] aspect-square">
+          <div className="relative mx-auto w-full max-w-[920px] aspect-square">
             <svg viewBox={`0 0 ${VB} ${VB}`} className="w-full h-full">
               <circle cx={CX} cy={CY} r={TRACK_R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={22} />
               <circle cx={CX} cy={CY} r={TRACK_R + 36} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
@@ -209,25 +209,26 @@ export default function OrganizationScheme() {
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div
                 key={active}
-                className="flex flex-col items-center justify-center text-center px-4 animate-fade-up overflow-hidden"
+                className="flex flex-col items-center justify-center text-center px-6 animate-fade-up"
                 style={{
-                  width: `${((HUB_R - 8) * 2 / VB) * 100}%`,
-                  height: `${((HUB_R - 8) * 2 / VB) * 100}%`,
+                  width: `${((HUB_R - 10) * 2 / VB) * 100}%`,
+                  height: `${((HUB_R - 10) * 2 / VB) * 100}%`,
+                  borderRadius: '50%',
                 }}
               >
                 <span
-                  className="w-8 h-8 rounded-full flex items-center justify-center mb-2 shrink-0"
+                  className="w-9 h-9 rounded-full flex items-center justify-center mb-2.5 shrink-0"
                   style={{ background: `${step.color}28`, color: step.color }}
                 >
                   {ICONS[step.icon]}
                 </span>
-                <span className="text-[10px] font-bold tracking-wide mb-1 shrink-0" style={{ color: step.color }}>
+                <span className="text-[11px] font-bold tracking-wide mb-1.5 shrink-0" style={{ color: step.color }}>
                   Шаг {step.num} из 7
                 </span>
-                <h4 className="font-semibold text-white text-[13px] leading-snug mb-2 shrink-0">
+                <h4 className="font-semibold text-white text-[15px] leading-snug mb-2.5 shrink-0 px-1">
                   {step.title}
                 </h4>
-                <p className="text-[11px] text-slate-400 leading-relaxed overflow-y-auto scrollbar-none">
+                <p className="text-[12px] text-slate-400 leading-relaxed px-1">
                   {step.full}
                 </p>
               </div>
@@ -249,7 +250,7 @@ export default function OrganizationScheme() {
                   type="button"
                   onMouseEnter={() => setActive(i)}
                   onClick={() => setActive(i)}
-                  className="absolute max-w-[160px] transition-opacity duration-200"
+                  className="absolute max-w-[168px] transition-opacity duration-200"
                   style={{
                     left: `${(tipX / VB) * 100}%`,
                     top: `${(tipY / VB) * 100}%`,
