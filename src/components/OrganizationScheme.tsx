@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { SCHEME_STEPS } from '../data/organization'
+import { IconFirework } from './Icons'
 
 const ICONS: Record<string, ReactNode> = {
   phone: (
@@ -176,7 +177,7 @@ export default function OrganizationScheme() {
 
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className={`relative z-10 w-32 h-32 rounded-full bg-gradient-to-br from-indigo-900 to-night border-2 border-gold/40 flex flex-col items-center justify-center text-center p-3 shadow-2xl shadow-gold/10 transition-all duration-500 ${visible ? 'scheme-pulse' : 'opacity-0'} ${highlighted !== null ? 'scale-90 opacity-60' : ''}`}>
-            <span className="text-2xl mb-1">🎆</span>
+            <span className="mb-1 text-gold"><IconFirework size={28} /></span>
             <span className="font-display font-bold text-gold text-sm leading-tight">Салюты</span>
             <span className="text-[9px] text-slate-400 mt-1 leading-snug px-1">
               Организация и проведение эффектного представления
@@ -220,7 +221,7 @@ export default function OrganizationScheme() {
                 <span className="text-gold text-[10px] font-bold">Шаг {s.num}</span>
                 <h4 className="font-semibold text-white text-sm leading-snug">{s.title}</h4>
               </div>
-              <span className={`text-slate-500 transition-transform duration-300 ${active === i ? 'rotate-180' : ''}`}>▼</span>
+              <svg className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${active === i ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" /></svg>
             </div>
             <div className={`px-4 overflow-hidden transition-all duration-500 ${active === i ? 'max-h-48 pb-4' : 'max-h-0'}`}>
               <p className="text-xs text-slate-400 leading-relaxed">{s.full}</p>

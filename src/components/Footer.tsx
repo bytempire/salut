@@ -1,10 +1,12 @@
+import { IconFirework } from './Icons'
+
 export default function Footer() {
   return (
     <footer className="relative z-10 border-t border-white/10 py-10 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🎆</span>
+            <IconFirework size={28} className="text-gold" />
             <div>
               <div className="font-display font-bold text-sm gold-text">
                 Фейерверки на Грибоедова

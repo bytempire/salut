@@ -1,3 +1,5 @@
+import { IconCheck, IconPhone, IconMapPin } from './Icons'
+
 const FEATURES = [
   'Официальные представители «Фейерверк-Мастер» и «Премьер-Салют»',
   'Вся продукция сертифицирована и лицензирована',
@@ -32,7 +34,7 @@ export default function About() {
           <div className="grid sm:grid-cols-2 gap-3">
             {FEATURES.map((feature) => (
               <div key={feature} className="flex items-start gap-3 text-sm">
-                <span className="text-gold mt-0.5">✦</span>
+                <IconCheck size={16} className="text-gold mt-0.5 shrink-0" />
                 <span className="text-slate-300">{feature}</span>
               </div>
             ))}
@@ -49,7 +51,10 @@ export function Contacts() {
       <div className="max-w-5xl mx-auto">
         <div className="grid sm:grid-cols-2 gap-6">
           <div className="glass rounded-2xl p-6">
-            <h3 className="font-semibold text-white mb-4">📞 Телефоны</h3>
+            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+              <IconPhone size={18} className="text-gold" />
+              Телефоны
+            </h3>
             <a href="tel:+74912990078" className="block text-gold hover:underline mb-1">
               +7 (4912) 99-00-78
             </a>
@@ -58,7 +63,10 @@ export function Contacts() {
             </a>
           </div>
           <div className="glass rounded-2xl p-6">
-            <h3 className="font-semibold text-white mb-4">📍 Адреса магазинов</h3>
+            <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+              <IconMapPin size={18} className="text-gold" />
+              Адреса магазинов
+            </h3>
             {LOCATIONS.map((loc) => (
               <p key={loc} className="text-sm text-slate-400 mb-2">{loc}</p>
             ))}

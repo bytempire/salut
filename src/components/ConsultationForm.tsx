@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { IconFirework } from './Icons'
 
 export default function ConsultationForm() {
   const [submitted, setSubmitted] = useState(false)
@@ -23,7 +24,9 @@ export default function ConsultationForm() {
 
           {submitted ? (
             <div className="text-center py-8">
-              <div className="text-5xl mb-4">🎆</div>
+              <div className="mb-4 flex justify-center text-gold">
+                <IconFirework size={48} />
+              </div>
               <p className="text-xl font-semibold text-white">Спасибо за обращение!</p>
               <p className="text-slate-400 mt-2">Мы свяжемся с вами в ближайшее время</p>
             </div>

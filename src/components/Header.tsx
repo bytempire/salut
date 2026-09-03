@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { IconFirework } from './Icons'
 
 const NAV_LINKS = [
   { href: '#catalog', label: 'Каталог' },
@@ -16,7 +17,7 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50">
       <div className="glass mx-4 mt-4 rounded-2xl px-6 py-3 flex items-center justify-between max-w-7xl lg:mx-auto">
         <a href="#" className="flex items-center gap-2 group">
-          <span className="text-2xl">🎆</span>
+          <IconFirework size={28} className="text-gold" />
           <div>
             <div className="font-display font-bold text-sm leading-tight gold-text">
               Фейерверки на Грибоедова
