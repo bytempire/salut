@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Separate cyberpunk GitHub Pages app (own repo)
+cyber/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
