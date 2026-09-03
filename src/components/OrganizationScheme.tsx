@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { SCHEME_STEPS } from '../data/organization'
-import { IconFirework } from './Icons'
 
 const ICONS: Record<string, ReactNode> = {
   phone: (
@@ -40,10 +39,12 @@ const ICONS: Record<string, ReactNode> = {
   ),
 }
 
-const CX = 300
-const CY = 300
-const TRACK_R = 115
-const LINE_END_R = 155
+const VB = 700
+const CX = VB / 2
+const CY = VB / 2
+const TRACK_R = 168
+const LINE_END_R = 218
+const HUB_R = 118
 const GAP_DEG = 10
 const STEP_SWEEP = 360 / SCHEME_STEPS.length - GAP_DEG
 
@@ -73,12 +74,10 @@ function stepAngles(i: number) {
   }
 }
 
-/** Horizontal align of callout based on angle */
-function calloutAlign(mid: number): 'left' | 'center' | 'right' {
+function calloutAlign(mid: number): 'left' | 'right' {
   const a = ((mid % 360) + 360) % 360
-  if (a > 50 && a < 130) return 'left' // bottom-ish → still use left/right by x
-  if (a >= 90 && a <= 270) return 'right' // left half of circle → text to the left of point
-  return 'left' // right half → text to the right
+  if (a >= 90 && a <= 270) return 'right'
+  return 'left'
 }
 
 export default function OrganizationScheme() {
@@ -91,7 +90,7 @@ export default function OrganizationScheme() {
     if (!el) return
     const obs = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setVisible(true) },
-      { threshold: 0.12 },
+      { threshold: 0.1 },
     )
     obs.observe(el)
     return () => obs.disconnect()
@@ -102,12 +101,12 @@ export default function OrganizationScheme() {
   return (
     <div ref={ref} className="relative">
       <div
-        className={`hidden lg:block mx-auto max-w-4xl transition-opacity duration-500 ${
+        className={`hidden lg:block mx-auto max-w-5xl transition-opacity duration-500 ${
           visible ? 'opacity-100' : 'opacity-0'
         }`}
       >
         <div
-          className="relative rounded-[2rem] overflow-hidden"
+          className="relative rounded-[2rem] overflow-hidden py-4"
           style={{
             background:
               'radial-gradient(ellipse at 50% 50%, #1a1a24 0%, #0c0c14 55%, #08080f 100%)',
@@ -121,12 +120,11 @@ export default function OrganizationScheme() {
             }}
           />
 
-          {/* 600×600 viewBox: ring + radial callouts, lines never cross */}
-          <div className="relative mx-auto w-full max-w-[640px] aspect-square">
-            <svg viewBox="0 0 600 600" className="w-full h-full">
-              <circle cx={CX} cy={CY} r={TRACK_R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={20} />
-              <circle cx={CX} cy={CY} r={TRACK_R + 32} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
-              <circle cx={CX} cy={CY} r={TRACK_R - 32} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
+          <div className="relative mx-auto w-full max-w-[820px] aspect-square">
+            <svg viewBox={`0 0 ${VB} ${VB}`} className="w-full h-full">
+              <circle cx={CX} cy={CY} r={TRACK_R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={22} />
+              <circle cx={CX} cy={CY} r={TRACK_R + 36} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
+              <circle cx={CX} cy={CY} r={TRACK_R - 36} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
 
               {SCHEME_STEPS.map((s, i) => {
                 const { start, mid, end } = stepAngles(i)
@@ -134,8 +132,7 @@ export default function OrganizationScheme() {
                 const arcPt = polar(TRACK_R, mid)
                 const endPt = polar(LINE_END_R, mid)
                 const align = calloutAlign(mid)
-                // Elbow: short horizontal stub so text sits beside the line tip
-                const stub = align === 'right' ? -18 : 18
+                const stub = align === 'right' ? -20 : 20
                 const tipX = endPt.x + stub
                 const tipY = endPt.y
 
@@ -150,20 +147,18 @@ export default function OrganizationScheme() {
                       d={arcPath(TRACK_R, start, end)}
                       fill="none"
                       stroke="transparent"
-                      strokeWidth={32}
+                      strokeWidth={36}
                       strokeLinecap="round"
                     />
                     <path
                       d={arcPath(TRACK_R, start, end)}
                       fill="none"
                       stroke={s.color}
-                      strokeWidth={isActive ? 18 : 12}
+                      strokeWidth={isActive ? 20 : 14}
                       strokeLinecap="round"
                       opacity={isActive ? 1 : 0.5}
                       style={{ transition: 'stroke-width 0.2s, opacity 0.2s' }}
                     />
-
-                    {/* Leader line: arc → radial out → short horizontal stub */}
                     <path
                       d={`M ${arcPt.x} ${arcPt.y} L ${endPt.x} ${endPt.y} L ${tipX} ${tipY}`}
                       fill="none"
@@ -172,26 +167,11 @@ export default function OrganizationScheme() {
                       strokeOpacity={isActive ? 0.95 : 0.35}
                       style={{ transition: 'stroke-opacity 0.2s, stroke-width 0.2s' }}
                     />
+                    <circle cx={tipX} cy={tipY} r={isActive ? 4 : 3} fill={s.color} opacity={isActive ? 1 : 0.45} />
                     <circle
                       cx={arcPt.x}
                       cy={arcPt.y}
-                      r={3}
-                      fill={s.color}
-                      opacity={isActive ? 1 : 0.5}
-                    />
-                    <circle
-                      cx={tipX}
-                      cy={tipY}
-                      r={isActive ? 4 : 3}
-                      fill={s.color}
-                      opacity={isActive ? 1 : 0.45}
-                    />
-
-                    {/* Number badge on arc */}
-                    <circle
-                      cx={arcPt.x}
-                      cy={arcPt.y}
-                      r={isActive ? 13 : 11}
+                      r={isActive ? 14 : 12}
                       fill="#0c0c14"
                       stroke={s.color}
                       strokeWidth={2}
@@ -202,7 +182,7 @@ export default function OrganizationScheme() {
                       textAnchor="middle"
                       dominantBaseline="central"
                       fill={s.color}
-                      fontSize={11}
+                      fontSize={12}
                       fontWeight={700}
                       className="pointer-events-none select-none"
                     >
@@ -212,28 +192,56 @@ export default function OrganizationScheme() {
                 )
               })}
 
-              <circle cx={CX} cy={CY} r={40} fill="#12121c" stroke="rgba(251,191,36,0.35)" strokeWidth={1.5} />
+              {/* Centre disc — step details live here */}
+              <circle
+                cx={CX}
+                cy={CY}
+                r={HUB_R}
+                fill="#12121c"
+                stroke={step.color}
+                strokeWidth={1.5}
+                strokeOpacity={0.45}
+                style={{ transition: 'stroke 0.25s' }}
+              />
             </svg>
 
-            {/* Centre hub */}
+            {/* Centre: full step info */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="flex flex-col items-center text-center">
-                <IconFirework size={22} className="text-gold mb-0.5" />
-                <span className="font-display font-bold text-gold text-xs">Салюты</span>
+              <div
+                key={active}
+                className="flex flex-col items-center justify-center text-center px-4 animate-fade-up overflow-hidden"
+                style={{
+                  width: `${((HUB_R - 8) * 2 / VB) * 100}%`,
+                  height: `${((HUB_R - 8) * 2 / VB) * 100}%`,
+                }}
+              >
+                <span
+                  className="w-8 h-8 rounded-full flex items-center justify-center mb-2 shrink-0"
+                  style={{ background: `${step.color}28`, color: step.color }}
+                >
+                  {ICONS[step.icon]}
+                </span>
+                <span className="text-[10px] font-bold tracking-wide mb-1 shrink-0" style={{ color: step.color }}>
+                  Шаг {step.num} из 7
+                </span>
+                <h4 className="font-semibold text-white text-[13px] leading-snug mb-2 shrink-0">
+                  {step.title}
+                </h4>
+                <p className="text-[11px] text-slate-400 leading-relaxed overflow-y-auto scrollbar-none">
+                  {step.full}
+                </p>
               </div>
             </div>
 
-            {/* HTML callouts at line tips — same angle as each step, no crossing */}
+            {/* Outer callouts */}
             {SCHEME_STEPS.map((s, i) => {
               const { mid } = stepAngles(i)
               const endPt = polar(LINE_END_R, mid)
               const align = calloutAlign(mid)
-              const stub = align === 'right' ? -18 : 18
+              const stub = align === 'right' ? -20 : 20
               const tipX = endPt.x + stub
               const tipY = endPt.y
               const isActive = active === i
-              const leftPct = (tipX / 600) * 100
-              const topPct = (tipY / 600) * 100
 
               return (
                 <button
@@ -241,25 +249,18 @@ export default function OrganizationScheme() {
                   type="button"
                   onMouseEnter={() => setActive(i)}
                   onClick={() => setActive(i)}
-                  className="absolute max-w-[148px] transition-opacity duration-200"
+                  className="absolute max-w-[160px] transition-opacity duration-200"
                   style={{
-                    left: `${leftPct}%`,
-                    top: `${topPct}%`,
-                    transform:
-                      align === 'right'
-                        ? 'translate(-100%, -50%)'
-                        : 'translate(0%, -50%)',
+                    left: `${(tipX / VB) * 100}%`,
+                    top: `${(tipY / VB) * 100}%`,
+                    transform: align === 'right' ? 'translate(-100%, -50%)' : 'translate(0%, -50%)',
                     opacity: isActive ? 1 : 0.55,
                     textAlign: align === 'right' ? 'right' : 'left',
                     paddingLeft: align === 'left' ? 8 : 0,
                     paddingRight: align === 'right' ? 8 : 0,
                   }}
                 >
-                  <div
-                    className={`flex items-center gap-1.5 mb-0.5 ${
-                      align === 'right' ? 'flex-row-reverse' : ''
-                    }`}
-                  >
+                  <div className={`flex items-center gap-1.5 mb-0.5 ${align === 'right' ? 'flex-row-reverse' : ''}`}>
                     <span
                       className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
                       style={{ background: `${s.color}22`, color: s.color }}
@@ -279,18 +280,6 @@ export default function OrganizationScheme() {
                 </button>
               )
             })}
-          </div>
-
-          {/* Full description for active step */}
-          <div
-            key={active}
-            className="mx-6 mb-8 mt-2 rounded-2xl border px-6 py-4 text-center animate-fade-up"
-            style={{
-              borderColor: `${step.color}44`,
-              background: `${step.color}10`,
-            }}
-          >
-            <p className="text-sm text-slate-300 leading-relaxed max-w-2xl mx-auto">{step.full}</p>
           </div>
         </div>
 
