@@ -283,10 +283,6 @@ export default function OrganizationScheme() {
             })}
           </div>
         </div>
-
-        <p className="text-center text-xs text-slate-500 mt-4">
-          Наведите на сегмент или выноску
-        </p>
       </div>
 
       {/* Mobile */}
